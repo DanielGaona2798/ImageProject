@@ -23,9 +23,10 @@ public class Page {
 
 	public List<String> getImages() throws IOException{
 		List<String> list = new ArrayList<>();
-//		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("172.16.0.73", 8080));
-		URL url = new URL("https://unsplash.com/wallpaper");
-		URLConnection hc = url.openConnection();
+		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("172.16.0.73", 8080));
+		URL url = new URL("http://wallpaperswide.com/");
+		URLConnection hc = url.openConnection(proxy);
+		hc.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
 		BufferedReader in = new BufferedReader(
 				new InputStreamReader(hc.getInputStream()));
 
@@ -44,14 +45,18 @@ public class Page {
 		return list;
 	}
 	
-	public void downloadImages(List<String> lsit) throws IOException{
+	public ArrayList<String> downloadImages(List<String> lsit) throws IOException{
+		ArrayList<String> list =  new ArrayList<>();
+		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("172.16.0.73", 8080));
 		for (String string : lsit) {
-			URL website = new URL(string);
+			URL url = new URL(string);
+			URLConnection hc = url.openConnection(proxy);
 			Path path = Paths.get("src/datos/" + getNameImage(string));
-			try (InputStream in = website.openStream()) {
-				Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
-			}
+			list.add(getNameImage(string));
+			InputStream in = hc.getInputStream();
+			Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
 		}
+		return list;
 	}
 	
 	
@@ -69,14 +74,5 @@ public class Page {
 			result += init.charAt(i); 
 		}
 		return result;
-	}
-	
-	public static void main(String[] args) {
-		Page page = new Page();
-		try {
-			page.downloadImages(page.getImages());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
